@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fathnin Nur Azmina — Data Analyst</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#0c1220;
+    --navy-900:#0f1826;
+    --navy-800:#182337;
+    --navy-700:#243250;
+    --cream-100:#f4efe3;
+    --cream-050:#faf7ef;
+    --rust-500:#c1592e;
+    --rust-400:#d97a4f;
+    --gold-400:#d9a441;
+    --ink-900:#20180f;
+    --muted:#93a0b8;
+    --line: rgba(244,239,227,0.12);
+    --radius: 4px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--navy-950);
+    color:var(--cream-100);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--rust-500); color:var(--cream-050);}
+
+  /* subtle grid texture */
+  .grid-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:0.35;
+    mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, black 40%, transparent 90%);
+  }
+
+  h1,h2,h3,h4{font-family:'Poppins', sans-serif; letter-spacing:-0.01em;}
+
+  .container{max-width:1080px; margin:0 auto; padding:0 32px; position:relative; z-index:1;}
+  section{padding:120px 0;}
+  @media (max-width:720px){ section{padding:80px 0;} .container{padding:0 20px;} }
+
+  /* ---- signature: sticky SQL query bar ---- */
+  .query-bar{
+    position:sticky; top:0; z-index:50;
+    background:var(--navy-900);
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(8px);
+  }
+  .query-bar-inner{
+    max-width:1080px; margin:0 auto; padding:14px 32px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    font-family:'JetBrains Mono', monospace; font-size:12.5px;
+  }
+  @media (max-width:720px){ .query-bar-inner{padding:12px 20px; font-size:11px;} }
+  .query-text{ color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .query-text .kw{color:var(--rust-400); font-weight:600;}
+  .query-text .str{color:var(--gold-400);}
+  .query-nav{display:flex; gap:18px; flex-shrink:0;}
+  .query-nav a{
+    color:var(--muted); text-decoration:none; font-size:12px;
+    padding:4px 0; border-bottom:1px solid transparent; transition:.2s;
+  }
+  .query-nav a:hover, .query-nav a.active{color:var(--cream-100); border-color:var(--rust-500);}
+  @media (max-width:640px){ .query-nav{display:none;} }
+
+  /* ---- hero ---- */
+  .hero{
+    min-height:92vh; display:flex; flex-direction:column; justify-content:center;
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.12em;
+    color:var(--gold-400); text-transform:uppercase; margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:26px; height:1px; background:var(--gold-400); display:inline-block;}
+  .hero h1{
+    font-size:clamp(42px, 7vw, 88px); font-weight:800; line-height:1.02;
+    color:var(--cream-050);
+  }
+  .hero h1 span{color:var(--rust-400); font-style:italic; font-weight:600;}
+  .hero-role{
+    font-size:clamp(16px, 2vw, 20px); color:var(--muted); margin-top:22px; max-width:560px;
+  }
+  .hero-stats{
+    display:flex; gap:0; margin-top:56px; border-top:1px solid var(--line); flex-wrap:wrap;
+  }
+  .hero-stat{
+    flex:1; min-width:150px; padding:20px 24px 0 0; border-right:1px solid var(--line);
+  }
+  .hero-stat:last-child{border-right:none;}
+  .hero-stat .num{font-family:'JetBrains Mono', monospace; color:var(--rust-400); font-size:13px; display:block; margin-bottom:6px;}
+  .hero-stat .label{font-size:13.5px; color:var(--cream-100); opacity:0.85;}
+  .hero-cta{display:flex; gap:14px; margin-top:48px; flex-wrap:wrap;}
+  .btn{
+    font-family:'JetBrains Mono', monospace; font-size:13px; text-decoration:none;
+    padding:13px 22px; border-radius:var(--radius); border:1px solid var(--line);
+    color:var(--cream-100); transition:.2s; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{background:var(--rust-500); border-color:var(--rust-500); color:var(--cream-050); font-weight:500;}
+  .btn-primary:hover{background:var(--rust-400);}
+  .btn:not(.btn-primary):hover{border-color:var(--gold-400); color:var(--gold-400);}
+
+  /* ---- section headers with cell-ref eyebrow ---- */
+  .sec-head{margin-bottom:56px;}
+  .sec-head .cellref{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--gold-400);
+    letter-spacing:0.1em; text-transform:uppercase; margin-bottom:12px; display:block;
+  }
+  .sec-head h2{font-size:clamp(28px,4vw,40px); color:var(--cream-050); font-weight:700;}
+  .sec-head p.desc{color:var(--muted); max-width:600px; margin-top:14px; font-size:15px;}
+
+  /* ---- about ---- */
+  .about-wrap{display:grid; grid-template-columns:1fr 1.3fr; gap:64px; align-items:start;}
+  @media (max-width:800px){ .about-wrap{grid-template-columns:1fr; gap:32px;} }
+  .about-card{
+    background:var(--cream-100); color:var(--ink-900); border-radius:var(--radius);
+    padding:32px; position:relative;
+  }
+  .about-card .tag{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--rust-500);
+    text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; display:block;
+  }
+  .about-card h3{font-size:22px; margin-bottom:8px;}
+  .about-card .loc{font-size:13.5px; color:#6b5f4d;}
+  .about-list{list-style:none;}
+  .about-list li{
+    display:flex; gap:16px; padding:18px 0; border-bottom:1px solid var(--line);
+  }
+  .about-list li:first-child{padding-top:0;}
+  .about-list .idx{font-family:'JetBrains Mono', monospace; color:var(--rust-400); font-size:13px; flex-shrink:0; padding-top:2px;}
+  .about-list .txt{color:var(--cream-100); font-size:15px; opacity:0.92;}
+
+  /* ---- skills ---- */
+  .skills-wrap{display:grid; grid-template-columns:1.4fr 1fr; gap:64px;}
+  @media (max-width:800px){ .skills-wrap{grid-template-columns:1fr; gap:40px;} }
+  .skill-block-title{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--gold-400);
+    text-transform:uppercase; letter-spacing:0.1em; margin-bottom:22px; display:block;
+  }
+  .hard-skill{margin-bottom:20px;}
+  .hard-skill-top{display:flex; justify-content:space-between; margin-bottom:8px; font-size:14.5px;}
+  .hard-skill-top .name{color:var(--cream-050); font-weight:500;}
+  .hard-skill-top .lvl{font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted);}
+  .bar-track{height:6px; background:var(--navy-800); border-radius:2px; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg, var(--rust-500), var(--gold-400)); border-radius:2px;}
+  .soft-chips{display:flex; flex-wrap:wrap; gap:10px;}
+  .chip{
+    font-size:13.5px; padding:9px 16px; border:1px solid var(--line); border-radius:20px;
+    color:var(--cream-100); font-family:'Inter'; background:var(--navy-800);
+  }
+
+  /* ---- experience timeline ---- */
+  .timeline{position:relative; padding-left:32px;}
+  .timeline::before{content:''; position:absolute; left:5px; top:6px; bottom:6px; width:1px; background:var(--line);}
+  .tl-item{position:relative; padding-bottom:48px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{
+    content:''; position:absolute; left:-32px; top:5px; width:11px; height:11px;
+    border-radius:50%; background:var(--navy-950); border:2px solid var(--rust-500);
+  }
+  .tl-year{font-family:'JetBrains Mono', monospace; color:var(--gold-400); font-size:12.5px; margin-bottom:8px; display:block;}
+  .tl-item h3{font-size:19px; color:var(--cream-050); margin-bottom:4px;}
+  .tl-org{font-size:14px; color:var(--rust-400); margin-bottom:10px;}
+  .tl-tags{display:flex; flex-wrap:wrap; gap:8px;}
+  .tl-tags span{
+    font-size:12px; font-family:'JetBrains Mono', monospace; color:var(--muted);
+    border:1px solid var(--line); padding:4px 10px; border-radius:3px;
+  }
+
+  /* ---- projects ---- */
+  .proj-subhead{display:flex; align-items:center; gap:12px; margin:64px 0 28px;}
+  .proj-subhead:first-of-type{margin-top:0;}
+  .proj-subhead h3{font-size:20px; color:var(--cream-050);}
+  .badge{
+    font-family:'JetBrains Mono', monospace; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.08em; padding:5px 10px; border-radius:3px;
+  }
+  .badge-locked{background:rgba(217,164,65,0.14); color:var(--gold-400); border:1px solid rgba(217,164,65,0.35);}
+  .badge-open{background:rgba(193,89,46,0.14); color:var(--rust-400); border:1px solid rgba(193,89,46,0.35);}
+  .note{
+    font-size:13.5px; color:var(--muted); background:var(--navy-800); border-left:2px solid var(--gold-400);
+    padding:14px 18px; border-radius:0 4px 4px 0; margin-bottom:36px;
+  }
+  .proj-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media (max-width:900px){ .proj-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:640px){ .proj-grid{grid-template-columns:1fr;} }
+  .proj-card{
+    background:var(--navy-800); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; display:flex; flex-direction:column; gap:14px;
+  }
+  .proj-card h4{font-size:16.5px; color:var(--cream-050); line-height:1.35;}
+  .proj-card .role{font-size:12.5px; color:var(--rust-400); font-family:'JetBrains Mono', monospace;}
+  .proj-card p{font-size:13.5px; color:var(--muted);}
+  .proj-tools{display:flex; flex-wrap:wrap; gap:6px; margin-top:auto;}
+  .proj-tools span{font-size:11px; font-family:'JetBrains Mono', monospace; color:var(--cream-100); opacity:0.7; border:1px solid var(--line); padding:3px 8px; border-radius:3px;}
+
+  .dummy-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  @media (max-width:900px){ .dummy-grid{grid-template-columns:1fr;} }
+  .dummy-card{
+    background:var(--cream-100); color:var(--ink-900); border-radius:var(--radius); padding:26px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .dummy-card .num{font-family:'JetBrains Mono', monospace; color:var(--rust-500); font-size:12px;}
+  .dummy-card h4{font-size:17px; color:var(--ink-900);}
+  .dummy-card .stack{font-size:12px; color:#6b5f4d; font-family:'JetBrains Mono', monospace;}
+  .insight-list{list-style:none; font-size:13px; display:flex; flex-direction:column; gap:6px;}
+  .insight-list li{padding-left:14px; position:relative; color:#3a3125;}
+  .insight-list li::before{content:'→'; position:absolute; left:0; color:var(--rust-500);}
+
+  /* ---- contact ---- */
+  .contact-wrap{
+    background:var(--cream-100); color:var(--ink-900); border-radius:6px; padding:64px 56px;
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:36px;
+  }
+  @media (max-width:720px){ .contact-wrap{padding:40px 28px; flex-direction:column; align-items:flex-start;} }
+  .contact-wrap h2{font-size:clamp(28px,4vw,42px); max-width:480px;}
+  .contact-links{display:flex; flex-direction:column; gap:14px;}
+  .contact-links a{
+    color:var(--ink-900); text-decoration:none; font-size:15px; font-family:'JetBrains Mono', monospace;
+    display:flex; align-items:center; gap:10px; border-bottom:1px solid transparent;
+  }
+  .contact-links a:hover{border-color:var(--rust-500); color:var(--rust-500);}
+
+  footer{
+    text-align:center; padding:40px 0; font-size:12px; color:var(--muted);
+    font-family:'JetBrains Mono', monospace; border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="query-bar">
+  <div class="query-bar-inner">
+    <div class="query-text"><span class="kw">SELECT</span> * <span class="kw">FROM</span> fathnin.portfolio <span class="kw">WHERE</span> section = <span class="str" id="qsection">'hero'</span>;</div>
+    <nav class="query-nav">
+      <a href="#about" data-sec="about_me">about</a>
+      <a href="#skills" data-sec="skills">skills</a>
+      <a href="#experience" data-sec="experience">experience</a>
+      <a href="#projects" data-sec="projects">projects</a>
+      <a href="#contact" data-sec="contact">contact</a>
+    </nav>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">Portfolio · July 2026 · Tangerang Selatan</span>
+    <h1>Fathnin Nur<br><span>Azmina</span></h1>
+    <p class="hero-role">Data Analyst dengan latar belakang Matematika — mengubah data mentah jadi laporan &amp; dashboard yang bisa langsung dipakai untuk mengambil keputusan.</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary">Lihat Proyek →</a>
+      <a href="mailto:nafathnin@gmail.com" class="btn">Hubungi Saya</a>
+      <a href="https://github.com/nafathnin" target="_blank" class="btn">GitHub</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num">01</span><span class="label">Lulusan Matematika, fokus data analysis &amp; reporting</span></div>
+      <div class="hero-stat"><span class="num">02</span><span class="label">Excel · Tableau · Python · SQL</span></div>
+      <div class="hero-stat"><span class="num">03</span><span class="label">Pengalaman mengolah dataset hingga jutaan baris</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="sec-head">
+      <span class="cellref">// cell A1</span>
+      <h2>About Me</h2>
+    </div>
+    <div class="about-wrap">
+      <div class="about-card">
+        <span class="tag">Profile</span>
+        <h3>Fathnin Nur Azmina</h3>
+        <p class="loc">Tangerang Selatan, Indonesia</p>
+        <p class="loc" style="margin-top:14px; line-height:1.6;">Lulusan Matematika yang membawa cara berpikir kuantitatif ke dalam pekerjaan analisis data sehari-hari — dari data cleaning sampai dashboard otomatis.</p>
+      </div>
+      <ul class="about-list">
+        <li><span class="idx">01</span><span class="txt">Lulusan Matematika dengan fokus pada pengolahan dan analisis data.</span></li>
+        <li><span class="idx">02</span><span class="txt">Terbiasa melakukan data cleaning, validasi, dan pembuatan laporan rutin.</span></li>
+        <li><span class="idx">03</span><span class="txt">Berpengalaman membuat automation dashboard yang membantu pengambilan keputusan lebih cepat di perusahaan.</span></li>
+        <li><span class="idx">04</span><span class="txt">Berpengalaman mengolah dataset skala kecil hingga besar (jutaan baris).</span></li>
+        <li><span class="idx">05</span><span class="txt">Mampu menyajikan data dalam format yang rapi, jelas, dan mudah dipahami.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="container">
+    <div class="sec-head">
+      <span class="cellref">// cell B2</span>
+      <h2>Skill Overview</h2>
+    </div>
+    <div class="skills-wrap">
+      <div>
+        <span class="skill-block-title">Hard Skills</span>
+        <div class="hard-skill"><div class="hard-skill-top"><span class="name">Advanced Microsoft Excel (Pivot Table, Power Query)</span></div><div class="bar-track"><div class="bar-fill" style="width:92%"></div></div></div>
+        <div class="hard-skill"><div class="hard-skill-top"><span class="name">Tableau</span></div><div class="bar-track"><div class="bar-fill" style="width:85%"></div></div></div>
+        <div class="hard-skill"><div class="hard-skill-top"><span class="name">SQL (PostgreSQL)</span></div><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div></div>
+        <div class="hard-skill"><div class="hard-skill-top"><span class="name">Data Cleaning &amp; Validation</span></div><div class="bar-track"><div class="bar-fill" style="width:90%"></div></div></div>
+        <div class="hard-skill"><div class="hard-skill-top"><span class="name">Data Reporting</span></div><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div></div>
+      </div>
+      <div>
+        <span class="skill-block-title">Soft Skills</span>
+        <div class="soft-chips">
+          <span class="chip">Teliti</span>
+          <span class="chip">Rapi &amp; Terorganisir</span>
+          <span class="chip">Manajemen Waktu</span>
+          <span class="chip">Kolaborasi Lintas Tim</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="container">
+    <div class="sec-head">
+      <span class="cellref">// cell C3</span>
+      <h2>Work Experience</h2>
+      <p class="desc">Diurutkan dari yang paling awal ke yang paling baru.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <span class="tl-year">2023</span>
+        <h3>Administration &amp; Data Support Intern</h3>
+        <p class="tl-org">Dinas Ketenagakerjaan</p>
+        <div class="tl-tags"><span>Data Cleaning</span><span>Validasi</span><span>Reporting</span><span>Visualisasi Dasar</span></div>
+      </div>
+      <div class="tl-item">
+        <span class="tl-year">2024</span>
+        <h3>Freelance Data Entry &amp; Validation</h3>
+        <p class="tl-org">PT Permodalan Nasional Madani</p>
+        <div class="tl-tags"><span>High-volume Validation</span><span>Rekap Harian</span><span>Remote Collaboration</span></div>
+      </div>
+      <div class="tl-item">
+        <span class="tl-year">2024</span>
+        <h3>Petugas KPPS</h3>
+        <p class="tl-org">KPU RI</p>
+        <div class="tl-tags"><span>Input &amp; Validasi Data Akurat</span><span>Dokumentasi Tertib</span></div>
+      </div>
+      <div class="tl-item">
+        <span class="tl-year">2026</span>
+        <h3>Anti-Fraud Analyst Intern</h3>
+        <p class="tl-org">PT Triputra Agro Persada</p>
+        <div class="tl-tags"><span>Fraud Detection</span><span>Automation Dashboard</span><span>Team Collaboration</span><span>Reporting</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="container">
+    <div class="sec-head">
+      <span class="cellref">// cell D4</span>
+      <h2>My Projects</h2>
+      <p class="desc">Kombinasi proyek profesional di lingkungan kerja dan proyek mandiri sebagai eksplorasi &amp; pembuktian skill.</p>
+    </div>
+
+    <div class="proj-subhead">
+      <h3>Confidential Projects</h3>
+      <span class="badge badge-locked">🔒 PT Triputra Agro Persada</span>
+    </div>
+    <p class="note">Seluruh dashboard di bawah ini dikembangkan menggunakan data internal perusahaan. Untuk menjaga kerahasiaan informasi, tampilan dashboard, data, dan metrik bisnis tidak ditampilkan — deskripsi difokuskan pada tujuan bisnis, proses pengembangan, dan kontribusi saya.</p>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <h4>Dashboard Monitoring Cost VRA &amp; Konsumsi BBM</h4>
+        <span class="role">Kontribusi sejak tahap perancangan</span>
+        <p>Dashboard terpusat untuk Tim Internal Audit memantau biaya operasional kendaraan dan konsumsi BBM. Saya terlibat mulai dari identifikasi kebutuhan bisnis, inventarisasi data, eksplorasi data, hingga membuat prototype di Excel &amp; Tableau.</p>
+        <div class="proj-tools"><span>Excel</span><span>Tableau</span><span>Database Internal</span></div>
+      </div>
+      <div class="proj-card">
+        <h4>Dashboard Monitoring Absensi &amp; Payroll Karyawan</h4>
+        <span class="role">Penyempurnaan &amp; integrasi data</span>
+        <p>Dashboard terintegrasi untuk memonitor absensi dan payroll seluruh cabang perusahaan. Saya menjembatani kebutuhan data antara tim audit dan tim IT serta berkontribusi dalam visualisasi dashboard sesuai kebutuhan pengguna.</p>
+        <div class="proj-tools"><span>Tableau</span><span>Snowflake</span><span>Database Internal</span></div>
+      </div>
+      <div class="proj-card">
+        <h4>Dashboard Deteksi Timbang CPO &amp; FFB</h4>
+        <span class="role">Testing, validasi &amp; pendampingan pengguna</span>
+        <p>Alat monitoring untuk mendeteksi anomali penimbangan CPO dan FFB berdasarkan gap tarra, durasi trip, dan fluktuasi tak wajar. Saya membantu testing, validasi fungsi, pendampingan pengguna, hingga penyusunan laporan bulanan.</p>
+        <div class="proj-tools"><span>Dashboard Internal</span><span>Tableau</span><span>Excel</span></div>
+      </div>
+    </div>
+
+    <div class="proj-subhead">
+      <h3>Independent Projects</h3>
+      <span class="badge badge-open">Open · Data Publik/Sintetis</span>
+    </div>
+    <div class="dummy-grid">
+      <div class="dummy-card">
+        <span class="num">01</span>
+        <h4>Fashion Retail Sales Analysis — Excel</h4>
+        <span class="stack">Excel · Power Query · Pivot Table</span>
+        <p style="font-size:13px; color:#6b5f4d;">Membersihkan &amp; mengeksplorasi data penjualan ritel, lalu membangun dashboard interaktif untuk mendukung pengambilan keputusan.</p>
+        <ul class="insight-list">
+          <li>Puncak penjualan di bulan Mei &amp; Desember</li>
+          <li>Piyama jadi produk paling menguntungkan</li>
+          <li>Review pelanggan tak berkorelasi kuat dengan penjualan</li>
+        </ul>
+      </div>
+      <div class="dummy-card">
+        <span class="num">02</span>
+        <h4>Fashion Retail Sales Analysis — PostgreSQL</h4>
+        <span class="stack">Python · PostgreSQL</span>
+        <p style="font-size:13px; color:#6b5f4d;">Membuat dataset sintetis dengan Python, mendesain struktur database, lalu menjalankan query analisis penjualan &amp; pelanggan.</p>
+        <ul class="insight-list">
+          <li>Pendapatan bulanan $40rb–$50rb</li>
+          <li>Pendapatan tertinggi Agustus 2025</li>
+          <li>Pertumbuhan terkuat pada Maret 2025</li>
+        </ul>
+      </div>
+      <div class="dummy-card">
+        <span class="num">03</span>
+        <h4>HR Analytics Dashboard — Tableau</h4>
+        <span class="stack">Tableau</span>
+        <p style="font-size:13px; color:#6b5f4d;">Menyajikan data karyawan untuk mendukung diskusi manajemen seputar turnover.</p>
+        <ul class="insight-list">
+          <li>Turnover tertinggi: pria, departemen Litbang</li>
+          <li>Usia 25–34 tahun</li>
+          <li>Latar belakang pendidikan sains</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="contact-wrap">
+      <h2>Contact Me</h2>
+      <div class="contact-links">
+        <a href="mailto:nafathnin@gmail.com">✉ nafathnin@gmail.com</a>
+        <a href="https://linkedin.com/in/fathninuraz" target="_blank">in linkedin.com/in/fathninuraz</a>
+        <a href="https://github.com/nafathnin" target="_blank">⌥ github.com/nafathnin</a>
+        <a href="tel:+6287860975582">☎ 0878-6097-5582</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Fathnin Nur Azmina — Built as a living portfolio</footer>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const qsection = document.getElementById('qsection');
+  const navLinks = document.querySelectorAll('.query-nav a');
+  const names = {about:'about_me', skills:'skill_overview', experience:'work_experience', projects:'my_projects', contact:'contact'};
+
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const id = entry.target.id;
+        qsection.textContent = "'" + (names[id] || id) + "'";
+        navLinks.forEach(a=> a.classList.toggle('active', a.getAttribute('href') === '#'+id));
+      }
+    });
+  }, {rootMargin:'-45% 0px -45% 0px'});
+
+  sections.forEach(s=> observer.observe(s));
+</script>
+
+</body>
+</html>
